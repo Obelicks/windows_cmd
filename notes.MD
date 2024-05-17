@@ -1,6 +1,8 @@
 # Introduction to Windows Command Line
 The scope of this module is how to navigate and administer a windows host from the commandline. These notes a written from a penetration testers perspective so the focus will be on reconnaissance, exploitation and exfiltration of data.
 
+While tools exits to make navigating on windows machines easier for linux users, these tools usually leave traces on the host machine of our presence. What we instead can do is to "live of the land" which means using build-in commands and functionality to do our work, instead of relying on outside tools that may expose us.
+
 ## Cheat Sheet 
 Useful commands will be listed in this table for the ease of use. 
 
@@ -9,12 +11,17 @@ Useful commands will be listed in this table for the ease of use.
 | ------- | --------| 
 | dir | print directory |
 | help  | displays a list of built-ins  |
-| help <commandName> |dispaly helpul information about the <commandName> |
+| help \<commandName> |dispaly helpul information about the <commandName> |
 | cls | clears the command prompt |
 | systeminfo | prints information about the system | 
 | ipconfig | shows networking information |
 | doskey /history | prints a history of used commands | 
 | cd | prints current working directory |
+| cd \<dir>| change directory to the dir in argument | 
+| tree | explore the file system tree with your current working directory as the root | 
+| md or mkdir | creates a subdir in the current working directory with the name given in argument 1 |
+| rd or rmdir | does the opposite of md and mkdir, it removes the directory specified in argument 1 |
+
 
 ## Command Prompt vs Powershell
 ### Command Prompt
@@ -76,3 +83,50 @@ It will print a newline terminated list with previous commands regardless of the
 like with linux **ctrl + c** will abort a running process  
 
 ## System Navigation
+we can use `cd` or `chdir` with arguments to print our current working directory.
+To change directory we can add the directory we want to move to, to the 1st argument of `cd` to move there. 
+
+Note that `C:\` is the root directory of a Windows machine. Historically drive A and B were for floppy disk so the thirds drive C was the harddrive. On modern computers there are no longer floppy disk slots but C:\ being the root of the windows system is still the case for legacy reasons.
+
+Like Linux, Windows can also use relative and absolute pathing. Remember to note what drive you are in when using absolute paths. 
+
+Using the `tree` command we can print a comprehensive view of the filesystem tree with our current working directory as the root of the tree.
+with the `/F` parameter we can also get the files in the folders with the `tree` command
+
+### Interesting Directories
+
+| Name: |	Location:¨|	Description:|
+|--|---|---
+%SYSTEMROOT%\Temp |	C:\Windows\Temp |	Global directory containing temporary system files accessible to all users on the system. All users, regardless of authority, are provided full read, write, and execute permissions in this directory. Useful for dropping files as a low-privilege user on the system. |
+|%TEMP% |	C:\Users\<user>\AppData\Local\Temp |	Local directory containing a user's temporary files accessible only to the user account that it is attached to. Provides full ownership to the user that owns this folder. Useful when the attacker gains control of a local/domain joined user account.|
+| %PUBLIC% |	C:\Users\Public |	Publicly accessible directory allowing any interactive logon account full access to read, write, modify, execute, etc., files and subfolders within the directory. Alternative to the global Windows Temp Directory as it's less likely to be monitored for suspicious activity. |
+|%ProgramFiles% |	C:\Program Files |	folder containing all 64-bit applications installed on the system. Useful for seeing what kind of applications are installed on the target system. |
+|%ProgramFiles(x86)% |	C:\Program Files (x86) |	Folder containing all 32-bit applications installed on the system. Useful for seeing what kind of applications are installed on the target system.|
+
+
+### Managing Directories
+With the command `md <dirName>` we can create a directory. `md` is short for `mkdir` which performs the same operation.
+
+we can remove directories with the `rd` or `rmdir` commands.
+
+Trying to remove a non-empty directory will result in failure however. Unless given the paramter `/S`. 
+
+#### Modify
+Directories holds data, other directories, and files which also holds data. Therefore modifying them is a complex task that we let commands do for us:
+* Move 
+* Robocopy
+* xcopy
+
+`move <source> <destination>` like its Linux cousin `mv` we input 1st what we want to move, then as 2nd argument where we want to move it to.
+
+`xcopy <source> <destination>` Like the name implies this command copies the source file to the destination. If given a directory xcopy will copy files and subdirectories however not empty subdirectories unless `/E` is given. xcopy will reset file and dir attributes unles the `/K` switch is passed.
+
+`robocopy`is the successor of xcopy with more options and utilities. 
+robocopy can move accross drives and networks while stile maintaining file data, attributes, ownership, ACLs, and any flags set like hidden or read-only.
+
+If a user does not have permission to copy files we can use the `/MIR` switch, this will however mark the files as backup and hide them, which can be prevented with the `/A-:SH`(attribute show hidden). If you dont want to commit to the copy you can use the `/L` to see a preview of the operation without it executing, a good idea if you are not 100% certain of what you are doing. 
+
+example:
+`robocopy /E /MIR /A-:SH C:\Users\htb\Desktop\notes\ C:\Users\htb\Documents\Backup\Files-to-exfil\`
+
+### Files
