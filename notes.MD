@@ -25,7 +25,7 @@ Useful commands will be listed in this table for the ease of use.
 
 ## Command Prompt vs Powershell
 ### Command Prompt
-The command prompt was released in 1981 and have a lot of limitation compared to its younger brother "Powershell". Command Prompt does for example not support aliases for its command, it cannot pass command output to a new command like "|" in bash. 
+The command prompt was released in 1981 and have a lot of limitation compared to its younger brother "Powershell". Command Prompt does for example not support aliases for its command, it cannot pass command output to a new command.
 Commands has to be run one at a time. 
 * Output is pure text
 
@@ -130,3 +130,7 @@ example:
 `robocopy /E /MIR /A-:SH C:\Users\htb\Desktop\notes\ C:\Users\htb\Documents\Backup\Files-to-exfil\`
 
 ### Files
+The `more` command displays the content of a file starting from the head until the terminal cannot show more, you can scroll further in the file with enter. Use the switch `/S` to crunch blanks spaces down to a single line.
+
+outputs can be piped to more with the `|` symbol `ipconfig | more`
+
