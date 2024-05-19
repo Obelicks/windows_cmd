@@ -21,7 +21,8 @@ Useful commands will be listed in this table for the ease of use.
 | tree | explore the file system tree with your current working directory as the root | 
 | md or mkdir | creates a subdir in the current working directory with the name given in argument 1 |
 | rd or rmdir | does the opposite of md and mkdir, it removes the directory specified in argument 1 |
-
+| find "string" | like grep on Linux |
+| del or erase | deletion tool | 
 
 ## Command Prompt vs Powershell
 ### Command Prompt
@@ -133,4 +134,66 @@ example:
 The `more` command displays the content of a file starting from the head until the terminal cannot show more, you can scroll further in the file with enter. Use the switch `/S` to crunch blanks spaces down to a single line.
 
 outputs can be piped to more with the `|` symbol `ipconfig | more`
+
+`openfiles` is an admin command that lets us see what files the users on our host has opened
+
+`type` can display the contents of multiple text files at once. It uses a non locking operation to do so. 
+
+`type` can also direct its output to other files `type secrets.txt >> exposed.txt`
+
+#### Create and modify 
+`echo` can be used to print something to the terminal and like on Linux can be used to write and append to a file 
+
+`echo something > text.txt` 
+
+`echo more things >> text.txt`
+
+`fsutil` filesystem utility lets us create a file. 
+
+`fsutil createNew for-sure.txt 222`
+
+`ren` ren(ame) allows the user to rename a file (arg1) to something else (arg2)
+
+#### Input / Output
+
+**<, >, |, &** can be used to direct input and output to and from commands. 
+
+**&&** can be used between two statemenets to run statement a and if it succeeds run b
+
+**||** can be used similiarly but statement b only gets executed if a fails. 
+
+#### Deleting Files
+For deletion we can use `del` which also has the alias `erase`.  
+```
+> help erase
+Deletes one or more files.
+
+DEL [/P] [/F] [/S] [/Q] [/A[[:]attributes]] names
+ERASE [/P] [/F] [/S] [/Q] [/A[[:]attributes]] names
+  /P            Prompts for confirmation before deleting each file.
+  /F            Force deleting of read-only files.
+  /S            Delete specified files from all subdirectories.
+  /Q            Quiet mode, do not ask if ok to delete on global wildcard
+  /A            Selects files to delete based on attributes
+  attributes    R  Read-only files            S  System files
+                H  Hidden files               A  Files ready for archiving
+                I  Not content indexed Files  L  Reparse Points
+                O  Offline files              -  Prefix meaning not
+```
+
+#### Copying and moving files
+cope and move can be used for these desired operations.
+use /v to increase verbosity given you validation after the operation.
+
+## System Information
+Now that we have found our feet on a windows host it is time to **Gather System Information.**
+
+In *any* offensive scenario it is important to enumerate the systems which are targeted. This can be done from outside but certainly also from the inside.
+
+What kind of information could be interesting?
+
+* General System Information
+* Networking Information
+* Basic Domain Information
+* User Information
 
