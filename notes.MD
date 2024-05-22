@@ -454,3 +454,43 @@ PowerShell can be used to accomplish many task, among them:
 *  Setting up Microsoft Exchange email inboxes for users (in the cloud &/or on-premises)
 
 Powershell can be used from a terminal or Microsofts "IDE" Windows PowerShell Integrated Scripting Enviroment (ISE). 
+
+## Prompt
+Powershell commands use the `verb-noun` naming convention as you will see here.
+
+`Get-Help` to get help with a cmdlet. 
+the switch `-Online` can be used to source the help from the online repository instead of the local, ensuring the most up to date help.
+
+`Update-Help` can be used to update the local `Get-Help` repository. 
+
+### Navigating 
+`Get-Location` print curret working directory.
+
+`Get-ChildItem` Print items inside your current working directory.
+
+`Set-Location` change directory works with both absolute and relative paths
+
+`Get-Content` reads the content of a file.
+
+`Get-Command` Can be used to find cmdlets to can remember the name of. 
+  * `Get-Command -verb get`
+  * `Get-Command -noun windows*`
+
+So now we know how to `Get-Help`, `Get-Command`,`Get-Content`, `Get-Childitem` and how to `Set-Location`.
+
+`Get-History` can be used to get a list of your previous commands, along with an ID
+using `r <id>` you can rerun the command with the id provided. 
+
+`Clear-Host` can clear the terminal. Aliases: `cls` `clear`
+
+#### Hotkeys
+|HotKey |	Description |
+| ------- |--------- |
+|CTRL+R |	It makes for a searchable history. We can start typing after, and it will show us results that match previous commands.|
+|CTRL+L |	Quick screen clear.|
+|CTRL+ALT+Shift+? |	This will print the entire list of keyboard shortcuts PowerShell will recognize.
+Escape 	When typing into the CLI, if you wish to clear the entire line, instead of holding backspace, you can just hit escape, which will erase the line. |
+|↑ |	Scroll up through our previous history.|
+|↓ |	Scroll down through our previous history.|
+|F7 |	Brings up a TUI with a scrollable interactive history from our session.|
+
