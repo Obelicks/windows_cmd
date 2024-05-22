@@ -541,5 +541,12 @@ A module is structured PowerShell code, that is made easy to use and share. A mo
 ### Using PowerShell Modules
 `Get-Module` will print a list of modules already loaded.
 
-`List-Available` will list installed modules that have not yet been loaded.
+`Get-Module -ListAvailable` will list installed modules that have not yet been loaded.
 
+`Import-Module` allows the user to add a module to the current session.
+
+`Get-ExecutionPolicy` displays the execution policy use use`-list` to se the different scopes.
+
+`Set-ExecutionPolicy` change the execution policy use `-scope Process` to limit it to the current powershell session.
+
+`Get-Command -Module <moduleName>`  
