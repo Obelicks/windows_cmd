@@ -494,3 +494,26 @@ Escape 	When typing into the CLI, if you wish to clear the entire line, instead 
 |↓ |	Scroll down through our previous history.|
 |F7 |	Brings up a TUI with a scrollable interactive history from our session.|
 
+
+### Aliases
+PowerShell has alot of builtin aliases to make the transition from bash or cmd to PowerShell easier.
+
+Aliases can be viewed with the `Get-Alias` cmdlet or its alias `gal`.
+
+Set can also set aliases with `Set-Alias`. Here is an example of how it works:
+
+`Set-Alias -Name gh -Value Get-Help` 
+
+#### Helpful Aliases
+You might recognize some of these builtin aliases from bash:
+| Alias |	Description |
+| ----- |------------ |
+|pwd 	|gl can also be used. This alias can be used in place of Get-Location.|
+|ls 	|dir and gci can also be used in place of ls. This is an alias for Get-ChildItem.|
+|cd 	|sl and chdir can be used in place of cd. This is an alias for Set-Location.|
+|cat 	|type and gc can also be used. This is an alias for Get-Content.|
+|clear |	Can be used in place of Clear-Host.|
+|curl 	|Curl is an alias for Invoke-WebRequest, which can be used to download files. wget can also be used.|
+|fl and ft |	These aliases can be used to format output into list and table outputs.|
+|man 	|Can be used in place of help.|
+
