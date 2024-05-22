@@ -431,6 +431,26 @@ Example:
 ||	/p 	|Specifies the password to run the task as.|
 ||	/f 	|Stops the confirmation warning.|
 
+
 # CMD vs PowerShell
 Up until now we have looked at the built-in windows command line cmd.exe. From now we will be looking at it successor PowerShell.
 
+| Feature |	CMD |	PowerShell |
+| ------ |------ |-----------|
+|Language |	Batch and basic CMD commands only. |	PowerShell can interpret Batch, CMD, PS cmdlets, and aliases.|
+|Command utilization |	The output from one command cannot be passed into another directly. |	The output from one command can be passed into another directly.|
+|Command Output |	Text only |	PowerShell outputs in object formatting.|
+|Parallel Execution |	CMD must finish one command before running another. |	PowerShell can multi-thread commands to run in parallel.|
+
+PowerShell can be used to accomplish many task, among them:
+*  Provisioning servers and installing server roles
+*  Creating Active Directory user accounts for new employees
+*  Managing Active Directory group permissions
+*  Disabling and deleting Active Directory user accounts
+*  Managing file share permissions
+*  Interacting with Azure AD and Azure VMs
+*  Creating, deleting, and monitoring directories & files
+*  Gathering information about workstations and servers
+*  Setting up Microsoft Exchange email inboxes for users (in the cloud &/or on-premises)
+
+Powershell can be used from a terminal or Microsofts "IDE" Windows PowerShell Integrated Scripting Enviroment (ISE). 
