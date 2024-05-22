@@ -197,3 +197,130 @@ What kind of information could be interesting?
 * Basic Domain Information
 * User Information
 
+These are not the only types of information that can prove useful, but it does give us an idea of what kind of information that is relevant and what is not. 
+
+**REMEMBER** to stay in scope! Your white hat can easily stain if you forget the scope and stick your nose in data you are not at liberty to see.
+
+### How to get Information
+#### The Big One
+`systeminfo` I don't even have to tell you what this does, for you to know this might be useful command, right?
+
+* Host-Name
+* Operating Systen information
+* Hardware Information
+* Timezone
+* Language(keyboard input, System)
+* Hotfixes
+* Network Card information
+
+Thats a lot of information. 
+
+#### The Others
+`hostname` prints the hostname
+
+`ver` what version of windows the system is running. 
+
+`ipconfig` Network information
+
+`arp /a` Prints the content of the systems Address Resolution Protocol cache 
+
+`whoami` display the username of the user currently logged in. 
+
+`whoami /priv` what are my priviledges
+
+`whoami /groups`what groups am i part of 
+
+`net user` display a list of all users on the host.
+
+`net group` (only works on a windows domain controller) display information about groups on the host
+
+`net localgroup` can be run on any windows host. Display information about groups on the host
+
+`net share` view or create shared resources on the host.
+
+`new view` 
+
+## Finding Files and Directories
+
+* `where` we can use where to find files that we input to it, if they exist in or cwd or paths. `where flag.txt` is a good one for CTF's
+  * `where /R <path> <file> ` to find files Recursivly in a directory.
+* `find <search-string> <path-to-file>` 
+  * /V print any line that does NOT contain the search-string
+  * /N print line number with the matched string
+  * /I disable case sensitivity
+* `findstr`is a grep like command
+* `comp` compare files
+* `fc` a more comprehensive tool for comparing files
+* `sort` sort agr1 can be directed with the output switch /O 
+  * `sort /unique` no dublets
+
+## Environment Variables
+`%SUPER_IMPORTANT_VARIABLE%` Capital letter with underscore for spacing is a standard, not a requirement for Environment Variables. 
+
+Global vs Local Variables.
+* Global: The data can be accessed from anywhere
+* Local: The data can only be referenced inside the scope it was declared.
+
+the `%WINDIR%` variable is a global variable that any user can call to get the path to the `Windows` directory.
+
+If user A was to identify a variable like 
+```
+>set SECRET=FLAG{This_is_it!}
+>echo %SECRET%
+{This_is_it!}
+```
+But when i log in as user B
+```
+>echo %SECRET%
+%SECRET%
+```
+
+Another type is scoping is the System scope and the user scope.
+
+There is also the more volatile scope that is called the process scope. 
+
+|Scope | 	Description |	Permissions Required to Access |	Registry Location |
+| ----| ---- | ---- | ----- |
+| System  (Machine) |	The System scope contains environment variables defined by the Operating System (OS) and are accessible globally by all users and accounts that log on to the system. The OS requires these variables to function properly and are loaded upon runtime. |	Local Administrator or Domain Administrator |	HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment |
+|User |	The User scope contains environment variables defined by the currently active user and are only accessible to them, not other users who can log on to the same system. |	Current Active User, Local Administrator, or Domain Administrator 	| HKEY_CURRENT_USER\Environment |
+| Process |	The Process scope contains environment variables that are defined and accessible in the context of the currently running process. Due to their transient nature, their lifetime only lasts for the currently running process in which they were initially defined. They also inherit variables from the System/User Scopes and the parent process that spawns it (only if it is a child process).| 	Current Child Process, Parent Process, or Current Active User |	None (Stored in Process Memory)|
+
+we can use `set` and `echo` to view the data in a variable.
+
+### set and setx
+`set` can be used to display, set and remove environment variables, but it only work in the current scope. 
+
+`setx` makes permanent changes to the registry. 
+
+#### Removing Varibales
+setting a variable to an empty string is the way to delete them
+`setx DCIP ""`
+
+### Important Variables
+| Variable Name | 	Description | 
+|  --------- |  -------------- | 
+| %PATH% | 	Specifies a set of directories(locations) where executable programs are located.| 
+| %OS% | 	The current operating system on the user's workstation.| 
+| %SYSTEMROOT% | 	Expands to C:\Windows. A system-defined read-only variable containing the Windows system folder. Anything Windows considers important to its core functionality is found here, including important data, core system binaries, and configuration files.| 
+| %LOGONSERVER% | 	Provides us with the login server for the currently active user followed by the machine's hostname. We can use this information to know if a machine is joined to a domain or workgroup.| 
+| %USERPROFILE% | 	Provides us with the location of the currently active user's home directory. Expands to C:\Users\{username}.| 
+| %ProgramFiles% | 	Equivalent of C:\Program Files. This location is where all the programs are installed on an x64 based system.| 
+| %ProgramFiles(x86)% | 	Equivalent of C:\Program Files (x86). This location is where all 32-bit programs running under WOW64 are installed. Note that this variable is only accessible on a 64-bit host. It can be used to indicate what kind of host we are interacting with. (x86 vs. x64 architecture) | 
+
+## Managing Services
+The service controller program `sc` allows the user to 
+* Determine what services are running
+* Modify existing services
+* disable/ enable running services
+
+`sc` works by giving it queries. We can query it by
+* process state
+* process id
+* service type
+
+`sc query type= service` lists all running services
+`sc query windefend` displays windefend also known as Windows Defender.
+`sc stop windefend` stops the specified process, might require admin priviledges or even System.
+`sc start windefend` starts the specified process, might require admin priviledges
+ 
+ 
