@@ -550,3 +550,34 @@ A module is structured PowerShell code, that is made easy to use and share. A mo
 `Set-ExecutionPolicy` change the execution policy use `-scope Process` to limit it to the current powershell session.
 
 `Get-Command -Module <moduleName>`  
+
+### PowerShell Gallery and GitHub
+Using the PowerShell Gallery or GitHub repositories you can find all sorts of modules you can use to enchance or tweak the PowerShell CLI to best match your needs.
+
+With the builtin module PowerShellGet we can usee the command `Find-Module -Name <cmdname>` we can search for modules we want.
+And with the pipe `|` symbol we can pipe the module into `Install-Module` to install it. 
+
+
+# User and Group Management
+User and group management is an integral part of a system administrator job. It is also typically an organizations biggest attack surface.  
+
+## User Accounts
+There are many accounts on a system which use different parts of the system. The types of accounts are:
+* Service Accounts
+* Built-in Accounts
+* Local Users
+* Domain Users
+
+### Default Local User accout
+| Account | Description | 
+| -------- |---------- |
+| Administrator | This account is used to accomplish administrative tasks on the local host. |
+| Default Account | The Default Account is used by the system for running multi-user auth apps like the Xbox utility |
+| Guest Account | This account is a limited rights account that allows users without a normal user account to access the host. It is disabled by default and should stay that way.|
+| WDAGUtility Account | This account is in place for the Defender Application Guard, which can sandbox application sessions |
+
+## Active Directory
+
+
+
+
