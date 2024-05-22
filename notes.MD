@@ -517,3 +517,29 @@ You might recognize some of these builtin aliases from bash:
 |fl and ft |	These aliases can be used to format output into list and table outputs.|
 |man 	|Can be used in place of help.|
 
+
+# CMDlets and Modules
+
+## Cmdlets
+
+Microsoft defines a cmdlet as: 
+"a single-feature command that manipulates objects in PowerShell."
+
+As mentioned earlier a cmdlet follow the Verb-Noun naming convention. 
+
+cmdlets are not written in PowerShell but in C# or another compiled language. 
+
+## PowerShell Modules
+A module is structured PowerShell code, that is made easy to use and share. A module can consist of the following: 
+
+* Cmdlets
+* Script files
+* Functions
+* Assemblies
+* Related resources (manifests and help files)
+
+### Using PowerShell Modules
+`Get-Module` will print a list of modules already loaded.
+
+`List-Available` will list installed modules that have not yet been loaded.
+
