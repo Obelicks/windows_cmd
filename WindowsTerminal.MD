@@ -577,7 +577,23 @@ There are many accounts on a system which use different parts of the system. The
 | WDAGUtility Account | This account is in place for the Defender Application Guard, which can sandbox application sessions |
 
 ## Active Directory
+Active Directory is a way to manage all computers in a domain from a central administration tool called the "Domain Controller"(DC). This way if user "Mike" needs his password reset. We do not have to go to the local user Mike in our entire organization (which theoritically could be a global organization). And manually reset the "Mike" user on each PC. 
 
+### Local vs Domain Joined Users
+Local users on a host is a user who has access to a subset of the resources on a host and has no special priviledges beyond the host. 
 
+A domain User is a user who is recognized by all hosts and resources that adheer to the Domain Controller. This way even if user A has never logged into host B his password will still recognize the login credentials. This doesnt mean User A is given access since host B might be restricted to only special group members with priviledge. 
 
+###  User Groups
+User Groups are a way to granulate access to users in a standadized way. The logic is that a user can belong to many groups and a group can have many members. But this begs the question what does a group do for its members? Simple it grants access.
+
+Using the example from before lets say that host B only allows logon for users who are part of group "admins-of-host-B", if we were to add User A to the group "admins-of-host-B" he would now be able to logon to host B. 
+
+#### Add Remove Edit Users and Groups
+
+* `Get-LocalGroup`
+* `Get-LocalUser`
+* `New-LocalUser`
+
+By now the commands above should give you an idea of their intended use. 
 
