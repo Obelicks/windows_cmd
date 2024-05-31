@@ -687,3 +687,75 @@ We can also edit the domain user if we messed something up.
 |Clear-Content |	clc |	Clear the content of the files without deleting the file itself.|
 |Compare-Object |	diff / compare |	Compare two or more objects against each other. This includes the object itself and the content within.|
 
+#### Combining with pipes
+
+`get-childitem -Path *.txt | rename-item -NewName {$_.name -replace ".txt",".md"}`
+
+This command pipes all items with the suffix `.txt` into the `rename-item` command preserving the name with `$_.name` and only replacing the .txt part with .md.
+A useful command for bulk work. 
+
+### File and Directory Permissions
+* Full Control
+* Modify 
+* List Folder Contents
+* Read and Execute
+* Write 
+* Read
+* Traverse Folder 
+
+By default inheritance from permission on a parent folder is granted to all its children. However this default behavior can be disabled allowing 
+
+## Finding and Filtering Content
+Remember earlier when we touched on the fact that PowerShell unlike cmd.exe utilize objects over plain text return type? 
+
+Unlike bash and cmd.exe eveything in PowerShell is an object. But what is an object? 
+
+Well an object is an instance of a class, which is like a schema of how an object from the class is supposed to look. 
+
+Lets take a simple example
+```
+Class Person:
+  string fullName;
+  date birthday;
+  string gender;
+  int height;
+  int weight;
+```
+Here i mocked up how the class "Person" could look. If we fill out the given variables we would have a person object like `("Harry James Potter, 31-07-1980, male, 180, 80")`
+
+Now a class can also have assosiated methods its ways we can interact with an object to be given more or less information about it or maybe we want the information formatted in a specific way. 
+
+Lets leave Harry (and the metaphor) in the Cupboard my fellow muggles and return to PowerShell.
+
+### Property Output (All)
+
+`PS C:\htb> Get-LocalUser administrator | Select-Object -Property *`
+```
+AccountExpires         :
+Description            : Built-in account for administering the computer/domain
+Enabled                : False
+FullName               :
+PasswordChangeableDate :
+PasswordExpires        :
+UserMayChangePassword  : True
+PasswordRequired       : True
+PasswordLastSet        :
+LastLogon              : 1/20/2021 5:39:14 PM
+Name                   : Administrator
+SID                    : S-1-5-21-3916821513-3027319641-390562114-500
+PrincipalSource        : Local
+ObjectClass            : User
+```
+In the lines of output we can see the name of all the properties of the localUser object. This is very helpful if you forgot and haven't interacted with an object
+### Filter on Properties
+`Get-LocalUser * | Select-Object -Property Name,PasswordLastSet`
+```
+Name               PasswordLastSet
+----               ---------------
+Administrator
+DefaultAccount
+Guest
+MTanaka              1/27/2021 2:39:55 PM
+WDAGUtilityAccount 1/18/2021 7:40:22 AM
+```
+
