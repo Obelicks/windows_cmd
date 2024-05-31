@@ -863,3 +863,6 @@ I have reduced the scope of file searches for clarities sake. The txt files we d
 * Checking a user's clipboard may also yield useful information. You can do so with Get-Clipboard
 * Looking at Scheduled tasks can be helpful as well.
 
+## Working with Services
+
+### How do we interact with services in PowerShell?
