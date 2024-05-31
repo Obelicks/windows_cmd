@@ -726,7 +726,33 @@ Here i mocked up how the class "Person" could look. If we fill out the given var
 Now a class can also have assosiated methods its ways we can interact with an object to be given more or less information about it or maybe we want the information formatted in a specific way. 
 
 Lets leave Harry (and the metaphor) in the Cupboard my fellow muggles and return to PowerShell.
+###
+`Get-LocalUser administrator | get-member`
+```
+   TypeName: Microsoft.PowerShell.Commands.LocalUser
 
+Name                   MemberType Definition
+----                   ---------- ----------
+Clone                  Method     Microsoft.PowerShell.Commands.LocalUser Clone()
+Equals                 Method     bool Equals(System.Object obj)
+GetHashCode            Method     int GetHashCode()
+GetType                Method     type GetType()
+ToString               Method     string ToString()
+AccountExpires         Property   System.Nullable[datetime] AccountExpires {get;set;}
+Description            Property   string Description {get;set;}
+Enabled                Property   bool Enabled {get;set;}
+FullName               Property   string FullName {get;set;}
+LastLogon              Property   System.Nullable[datetime] LastLogon {get;set;}
+Name                   Property   string Name {get;set;}
+ObjectClass            Property   string ObjectClass {get;set;}
+PasswordChangeableDate Property   System.Nullable[datetime] PasswordChangeableDate {get;set;}
+PasswordExpires        Property   System.Nullable[datetime] PasswordExpires {get;set;}
+PasswordLastSet        Property   System.Nullable[datetime] PasswordLastSet {get;set;}
+PasswordRequired       Property   bool PasswordRequired {get;set;}
+PrincipalSource        Property   System.Nullable[Microsoft.PowerShell.Commands.PrincipalSource] PrincipalSource {ge...
+SID                    Property   System.Security.Principal.SecurityIdentifier SID {get;set;}
+UserMayChangePassword  Property   bool UserMayChangePassword {get;set;}
+```
 ### Property Output (All)
 
 `PS C:\htb> Get-LocalUser administrator | Select-Object -Property *`
@@ -758,4 +784,82 @@ Guest
 MTanaka              1/27/2021 2:39:55 PM
 WDAGUtilityAccount 1/18/2021 7:40:22 AM
 ```
+
+### Sorting and Grouping 
+`Get-LocalUser * | Sort-Object -Property Name | Group-Object -property Enabled`
+
+```
+Count Name                      Group
+----- ----                      -----
+    4 False                     {Administrator, DefaultAccount, Guest, WDAGUtilityAccount}
+    1 True                      {MTanaka}
+```
+
+Sorting, grouping and filtering are all useful tools that will help us focus on the relevant data we are interested and throwing away the useless data we don't care about.
+
+### Where
+Sometimes what we are looking for might not be as clear to us as we would like, but we know sorta what we want. Say we are looking for a service and we know part of the name.
+
+`Get-Service | where DisplayName -like '*Defender*'`
+
+```
+Status   Name               DisplayName
+------   ----               -----------
+Running  mpssvc             Windows Defender Firewall
+Stopped  Sense              Windows Defender Advanced Threat Pr...
+Running  WdNisSvc           Microsoft Defender Antivirus Networ...
+Running  WinDefend          Microsoft Defender Antivirus Service
+```
+
+Here i prompted PowerShell that i was looking for a DisplayName -like "*Defender*" *note* that the search string is a regex. 
+
+Like is not the only comparison operator we can use
+* like
+* Contains
+* Equal
+* Match
+* Not
+
+### Pipeline (|)
+Like with bash the pipeline forwards the returned object and parses in as an argument to the statement afther the pipeline. You can chain maybe statements together like that:
+`get-process | sort | unique | measure-object`
+
+#### Chain Operators (&& and ||)
+* && executes the next statement if the first statement succeeds 
+* || executes the next statement if the first statement failed.
+
+Only works with PowerShell 7 and above.
+
+
+### Finding data within content
+Say we are unable to bring in tools from the outside, how can we hunt for sensitive data? 
+
+`Select-String` is a good place to start it functions much like grep.
+
+Lets examine this string
+`Get-Childitem –Path C:\Users\MTanaka\ -File -Recurse -ErrorAction SilentlyContinue | where {($_.Name -like "*.txt")}`
+
+This will recursivly enumerate every subdir of the path given and while suppressing any errors we get will return any .txt file it finds. 
+
+However txt files are not the only interesting file type on a system, so lets expand with some more types!
+
+`Get-Childitem –Path C:\Users\MTanaka\ -File -Recurse -ErrorAction SilentlyContinue | where {($_.Name -like "*.txt" -or $_.Name -like "*.py" -or $_.Name -like "*.ps1" -or $_.Name -like "*.md" -or $_.Name -like "*.csv")}`
+
+Using the or operator we now have a good change of finding some interesting files.
+
+Now lets search some interesting files for string keywords!
+
+`Get-ChildItem -Path C:\Users\MTanaka\ -Filter "*.txt" -Recurse -File | sls "Password","credential","key"`
+
+I have reduced the scope of file searches for clarities sake. The txt files we do find we search for the strings Password, credential and key. 
+
+### Good Places to look for Treasure
+
+* Looking in a Users \AppData\ folder is a great place to start. Many applications store configuration files, temp saves of documents, and more.
+* A Users home folder C:\Users\User\ is a common storage place; things like VPN keys, SSH keys, and more are stored. Typically in hidden folders. (Get-ChildItem -Hidden)
+* The Console History files kept by the host are an endless well of information, especially if you land on an administrator's host. You can check two different points:
+* C:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\Powershell\PSReadline\ConsoleHost_history.txt
+* Get-Content (Get-PSReadlineOption).HistorySavePath
+* Checking a user's clipboard may also yield useful information. You can do so with Get-Clipboard
+* Looking at Scheduled tasks can be helpful as well.
 
