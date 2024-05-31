@@ -593,7 +593,97 @@ Using the example from before lets say that host B only allows logon for users w
 
 * `Get-LocalGroup`
 * `Get-LocalUser`
-* `New-LocalUser`
+* `New-LocalUser -Name "name"`
+* `Set-LocalUser`
+* `$Password = Read-Host -AsSecureString`
+* `Add-LocalGroupMember -Group "Remote Desktop Users" -Member "JLawrence"`
+* `Get-LocalGroupMember -Name "Remote Desktop Users"`
 
 By now the commands above should give you an idea of their intended use. 
+
+### Manage Domain Users and Groups
+Having the Remote System Administration Tools installed is a requirement to manage ActiveDirectory with PowerShell (atleast its the only official tool).
+
+`Get-WindowsCapability -Name RSAT* -Online | Add-WindowsCapability -Online`
+
+This will install all RSAT features. Confirm ActiveDirectory tools are installed:
+
+`Get-Module -Name ActiveDirectory -ListAvailable`
+#### PowerShell cmdlets
+
+`Get-ADUser -Filter *`
+
+This command will give us a several piece of information about the users in a domain:
+
+* Object Class: which specifies if the object is a user, computer, or another type of object.
+* DistinguishedName: Specifies the object's relative path within the AD schema.
+* Enabled: Tells us if the user is active and can log in.
+* SamAccountName: The representation of the username used to log into the ActiveDirectory hosts.
+* ObjectGUID: Is the unique identifier of the user object.
+
+example:
+```
+PS C:\htb>  Get-ADUser -Identity TSilver
+
+
+DistinguishedName : CN=TSilver,CN=Users,DC=greenhorn,DC=corp
+Enabled           : True
+GivenName         :
+Name              : TSilver
+ObjectClass       : user
+ObjectGUID        : a19a6c8a-000a-4cbf-aa14-0c7fca643c37
+SamAccountName    : TSilver
+SID               : S-1-5-21-1480833693-1324064541-2711030367-1602
+Surname           :
+UserPrincipalName :
+```
+
+We can also search on attributes:
+
+`Get-ADUser -Filter {EmailAddress -like '*evil.corp'}`
+
+[Link](https://learn.microsoft.com/en-us/archive/technet-wiki/12037.active-directory-get-aduser-default-and-extended-properties)
+
+Now lets create a domain user!
+
+`New-ADUser -Name "MTanaka" -Surname "Tanaka" -GivenName "Mori" -Office "Security" -OtherAttributes @{'title'="Sensei";'mail'="MTanaka@greenhorn.corp"} -Accountpassword (Read-Host -AsSecureString "AccountPassword") -Enabled $true `
+
+Next i would like to validate 
+
+```
+Get-ADUser -Identity MTanaka -Properties * | Format-Table Name,Enabled,GivenName,Surname,Title,Office,Mail
+
+Name    Enabled GivenName Surname Title  Office   Mail
+----    ------- --------- ------- -----  ------   ----
+MTanaka  True    Mori      Tanaka  Sensei Security MTanaka@greenhorn.corp
+```
+Here is a rundown on the different switches used:
+
+* New-ADUser -Name "MTanaka" : We issue the New-ADUser command and set the user's SamAccountName to MTanaka.
+* -Surname "Tanaka" -GivenName "Mori": This portion sets our user's Lastname and Firstname.
+* -Office "Security": Sets the extended property of Office to Security.
+* -OtherAttributes @{'title'="Sensei";'mail'="MTanaka@greenhorn.corp"}: Here we set other extended attributes such as title and Email-Address.
+* -Accountpassword (Read-Host -AsSecureString "AccountPassword"): With this portion, we set the user's password by having the shell prompt us to enter a new password. (we can see it in the line below with the stars)
+* -Enabled $true: We are enabling the account for use. The user could not log in if this was set to \$False
+
+We can also edit the domain user if we messed something up.
+
+`Set-ADUser -Identity MTanaka -Description " Sensei to Security Analyst's Rocky, Colt, and Tum-Tum"`
+
+## Working with Files and Directories
+### Common Commands Used for File & Folder Management
+| Command |	Alias |	Description |
+| -------- |---- |------------- |
+|Get-Item | 	gi | 	Retrieve an object (could be a file, folder, registry object, etc.) |
+|Get-ChildItem | 	ls / dir / gci | 	Lists out the content of a folder or registry hive. |
+|New-Item |	md / mkdir / ni |	Create new objects. ( can be files, folders, symlinks, registry entries, and more)|
+|Set-Item |	si 	|Modify the property values of an object.|
+|Copy-Item | 	copy / cp / ci |	Make a duplicate of the item.|
+|Rename-Item| 	ren / rni |	Changes the object name.|
+|Remove-Item |	rm / del / rmdir |	Deletes the object.|
+|Get-Content |	cat / type |	Displays the content within a file or object.|
+|Add-Content |	ac |	Append content to a file.|
+|Set-Content |	sc |	overwrite any content in a file with new data.|
+|Clear-Content |	clc |	Clear the content of the files without deleting the file itself.|
+|Compare-Object |	diff / compare |	Compare two or more objects against each other. This includes the object itself and the content within.|
 
