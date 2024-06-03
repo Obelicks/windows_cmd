@@ -866,3 +866,62 @@ I have reduced the scope of file searches for clarities sake. The txt files we d
 ## Working with Services
 
 ### How do we interact with services in PowerShell?
+Getting help works the same as usual
+
+`Get-Help *-Service`
+
+`Get-Service | ft DisplayName,Status` 
+
+This return an easy to read table of serviceNames and their status.
+
+This command will allow us to measure how many Services we have running
+`Get-Service | where Status -match Running | measure`
+
+I like cmd examples OK!
+`Get-Service | where DisplayName -like '*Defender*' | ft DisplayName,ServiceName,Status`
+
+`Start-Service WinDefend`
+you can also stop and restart services
+
+### Remote Services using PowerShell
+Say we wanna interact with a remote host in our domain we simpy use the flag `-ComputerName` and enter the hostname 
+
+```
+PS C:\htb> get-service -ComputerName ACADEMY-ICL-DC
+
+Status   Name               DisplayName
+------   ----               -----------
+Running  ADWS               Active Directory Web Services
+Stopped  AppIDSvc           Application Identity
+Stopped  AppMgmt            Application Management
+Stopped  AppReadiness       App Readiness
+Stopped  AppXSvc            AppX Deployment Service (AppXSVC)
+Running  BFE                Base Filtering Engine
+Stopped  BITS               Background Intelligent Transfer Ser...
+<SNIP> 
+```
+Perhaps a filter is in order:
+```
+PS C:\htb> Get-Service -ComputerName ACADEMY-ICL-DC | Where-Object {$_.Status -eq "Running"}
+
+Status   Name               DisplayName
+------   ----               -----------
+Running  ADWS               Active Directory Web Services
+Running  BFE                Base Filtering Engine
+Running  COMSysApp          COM+ System Application
+Running  CoreMessagingRe... CoreMessaging
+Running  CryptSvc           Cryptographic Services
+Running  DcomLaunch         DCOM Server Process Launcher
+Running  Dfs                DFS Namespace
+Running  DFSR               DFS Replication
+```
+
+Now we would like to run a command on multiple hosts
+```
+PS C:\htb> invoke-command -ComputerName ACADEMY-ICL-DC,LOCALHOST -ScriptBlock {Get-Service -Name 'windefend'}
+
+Status   Name               DisplayName                            PSComputerName
+------   ----               -----------                            --------------
+Running  windefend          Microsoft Defender Antivirus Service   LOCALHOST
+Running  windefend          Windows Defender Antivirus Service     ACADEMY-ICL-DC
+```
