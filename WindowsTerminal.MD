@@ -965,3 +965,5 @@ d----           9/18/2021 12:22 AM                TxR
 More can be found here [here](https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives)
 
 ### What Are Values
+The values are stored in the registry between the orange lines in the image below.
+![here](registry-values.webp)
