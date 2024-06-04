@@ -967,3 +967,14 @@ More can be found here [here](https://learn.microsoft.com/en-us/windows/win32/sy
 ### What Are Values
 The values are stored in the registry between the orange lines in the image below.
 ![here](registry-values.webp)
+A more detailed list of types is available here:
+[Link](https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-value-types)
+
+### Registry Hives
+|Name|	Abbreviation|	Description|
+|-----|----------|----------|
+|HKEY_LOCAL_MACHINE	|HKLM|	This subtree contains information about the computer's physical state, such as hardware and operating system data, bus types, memory, device drivers, and more.|
+|HKEY_CURRENT_CONFIG	|HKCC|	This section contains records for the host's current hardware profile. (shows the variance between current and default setups) Think of this as a redirection of the HKLM CurrentControlSet profile key.|
+|HKEY_CLASSES_ROOT	|HKCR|	Filetype information, UI extensions, and backward compatibility settings are defined here.|
+|HKEY_CURRENT_USER|	HKCU|	Value entries here define the specific OS and software settings for each specific user. Roaming profile settings, including user preferences, are stored under HKCU.|
+|HKEY_USERS|	HKU|	The default User profile and current user configuration settings for the local computer are defined under HKU.|
