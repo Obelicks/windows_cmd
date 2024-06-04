@@ -978,3 +978,6 @@ A more detailed list of types is available here:
 |HKEY_CLASSES_ROOT	|HKCR|	Filetype information, UI extensions, and backward compatibility settings are defined here.|
 |HKEY_CURRENT_USER|	HKCU|	Value entries here define the specific OS and software settings for each specific user. Roaming profile settings, including user preferences, are stored under HKCU.|
 |HKEY_USERS|	HKU|	The default User profile and current user configuration settings for the local computer are defined under HKU.|
+
+[Microsoft](https://learn.microsoft.com/en-us/windows/win32/sysinfo/predefined-keys) has more information on this.
+
