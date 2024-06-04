@@ -925,3 +925,43 @@ Status   Name               DisplayName                            PSComputerNam
 Running  windefend          Microsoft Defender Antivirus Service   LOCALHOST
 Running  windefend          Windows Defender Antivirus Service     ACADEMY-ICL-DC
 ```
+## Working with the Registry 
+The Windows Registry is a hierarchal tree with keys and matching values
+
+Key can contain other keys and values as data.
+
+![Keys](registry.webp "Green is Keys")
+
+The elements in the green are keys that contain other "sub-keys" 
+
+### Registry Key Files
+A host systems Registry root keys are stored in several different files and can be accessed from `C:\Windows\System32\Config\`
+
+Along with these Key files, registry hives are held throughout the host in various other places.
+
+```
+PS C:\htb> Get-ChildItem C:\Windows\System32\config\
+
+    Directory: C:\Windows\System32\config
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d----           12/7/2019  4:14 AM                Journal
+d----           12/7/2019  4:14 AM                RegBack
+d----           4/28/2021 11:43 AM                systemprofile
+d----           9/18/2021 12:22 AM                TxR
+-a---          10/12/2022 10:06 AM         786432 BBI
+-a---           1/20/2021  5:13 PM          28672 BCD-Template
+-a---          10/18/2022 11:14 AM       38273024 COMPONENTS
+-a---          10/12/2022 10:06 AM        1048576 DEFAULT
+-a---          10/15/2022  9:33 PM       13463552 DRIVERS
+-a---           1/27/2021  2:54 PM          32768 ELAM
+-a---          10/12/2022 10:06 AM         131072 SAM
+-a---          10/12/2022 10:06 AM          65536 SECURITY
+-a---          10/12/2022 10:06 AM      168034304 SOFTWARE
+-a---          10/12/2022 10:06 AM       29884416 SYSTEM
+-a---          10/12/2022 10:06 AM           1623 VSMIDK
+```
+More can be found here [here](https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives)
+
+### What Are Values
