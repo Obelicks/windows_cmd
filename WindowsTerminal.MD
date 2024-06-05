@@ -863,9 +863,9 @@ I have reduced the scope of file searches for clarities sake. The txt files we d
 * Checking a user's clipboard may also yield useful information. You can do so with Get-Clipboard
 * Looking at Scheduled tasks can be helpful as well.
 
-## Working with Services
+# Working with Services
 
-### How do we interact with services in PowerShell?
+## How do we interact with services in PowerShell?
 Getting help works the same as usual
 
 `Get-Help *-Service`
@@ -883,7 +883,7 @@ I like cmd examples OK!
 `Start-Service WinDefend`
 you can also stop and restart services
 
-### Remote Services using PowerShell
+## Remote Services using PowerShell
 Say we wanna interact with a remote host in our domain we simpy use the flag `-ComputerName` and enter the hostname 
 
 ```
@@ -925,7 +925,7 @@ Status   Name               DisplayName                            PSComputerNam
 Running  windefend          Microsoft Defender Antivirus Service   LOCALHOST
 Running  windefend          Windows Defender Antivirus Service     ACADEMY-ICL-DC
 ```
-## Working with the Registry 
+# Working with the Registry 
 The Windows Registry is a hierarchal tree with keys and matching values
 
 Key can contain other keys and values as data.
@@ -934,7 +934,7 @@ Key can contain other keys and values as data.
 
 The elements in the green are keys that contain other "sub-keys" 
 
-### Registry Key Files
+## Registry Key Files
 A host systems Registry root keys are stored in several different files and can be accessed from `C:\Windows\System32\Config\`
 
 Along with these Key files, registry hives are held throughout the host in various other places.
@@ -964,13 +964,13 @@ d----           9/18/2021 12:22 AM                TxR
 ```
 More can be found here [here](https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-hives)
 
-### What Are Values
+## What Are Values
 The values are stored in the registry between the orange lines in the image below.
 ![here](registry-values.webp)
 A more detailed list of types is available here:
 [Link](https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-value-types)
 
-### Registry Hives
+## Registry Hives
 |Name|	Abbreviation|	Description|
 |-----|----------|----------|
 |HKEY_LOCAL_MACHINE	|HKLM|	This subtree contains information about the computer's physical state, such as hardware and operating system data, bus types, memory, device drivers, and more.|
@@ -981,3 +981,146 @@ A more detailed list of types is available here:
 
 [Microsoft](https://learn.microsoft.com/en-us/windows/win32/sysinfo/predefined-keys) has more information on this.
 
+## Access the Information
+Commonly the reg.exe application is used to access the registry, however since we might only have shell access to the machine we would like to know how to interact with the registry via powershell
+
+1. `Get-Item`
+2. `Get-ItemProperty`
+3. `Get-ChildItem`
+
+### 1 Get-Item
+```
+PS C:\htb> Get-Item -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run | Select-Object -ExpandProperty Property  
+
+SecurityHealth
+RtkAudUService
+WavesSvc
+DisplayLinkTrayApp
+LogiOptions
+Acrobat Assistant 8.0
+(default)
+Focusrite Notifier
+AdobeGCInvoker-1.0
+```
+
+### 2 Recursive Search
+
+```
+PS C:\htb> Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion -Recurse
+
+Hive: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
+<SNIP>
+Name                           Property
+----                           --------
+7zFM.exe                       (default) : C:\Program Files\7-Zip\7zFM.exe
+                               Path      : C:\Program Files\7-Zip\
+Acrobat.exe                    (default) : C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe
+                               Path      : C:\Program Files\Adobe\Acrobat DC\Acrobat\
+AcrobatInfo.exe                (default) : C:\Program Files\Adobe\Acrobat DC\Acrobat\AcrobatInfo.exe
+                               Path      : C:\Program Files\Adobe\Acrobat DC\Acrobat\
+AcroDist.exe                   Path      : C:\Program Files\Adobe\Acrobat DC\Acrobat\
+                               (default) : C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrodist.exe
+Ahk2Exe.exe                    (default) : C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe
+AutoHotkey.exe                 (default) : C:\Program Files\AutoHotkey\AutoHotkey.exe
+chrome.exe                     (default) : C:\Program Files\Google\Chrome\Application\chrome.exe
+                               Path      : C:\Program Files\Google\Chrome\Application
+cmmgr32.exe                    CmNative          : 2
+                               CmstpExtensionDll : C:\Windows\System32\cmcfg32.dll
+CNMNSST.exe                    (default) : C:\Program Files (x86)\Canon\IJ Network Scanner Selector EX\CNMNSST.exe
+                               Path      : C:\Program Files (x86)\Canon\IJ Network Scanner Selector EX
+devenv.exe                     (default) : "C:\Program Files\Microsoft Visual
+                               Studio\2022\Community\common7\ide\devenv.exe"
+dfshim.dll                     UseURL : 1
+excel.exe                      (default) : C:\Program Files\Microsoft Office\Root\Office16\EXCEL.EXE
+                               Path      : C:\Program Files\Microsoft Office\Root\Office16\
+                               UseURL    : 1
+                               SaveURL   : 1
+fsquirt.exe                    DropTarget : {047ea9a0-93bb-415f-a1c3-d7aeb3dd5087}
+IEDIAG.EXE                     (default) : C:\Program Files\Internet Explorer\IEDIAGCMD.EXE
+                               Path      : C:\Program Files\Internet Explorer;
+IEDIAGCMD.EXE                  (default) : C:\Program Files\Internet Explorer\IEDIAGCMD.EXE
+                               Path      : C:\Program Files\Internet Explorer;
+IEXPLORE.EXE                   (default) : C:\Program Files\Internet Explorer\IEXPLORE.EXE
+                               Path      : C:\Program Files\Internet Explorer;
+install.exe                    BlockOnTSNonInstallMode : 1
+javaws.exe                     (default) : C:\Program Files\Java\jre1.8.0_341\bin\javaws.exe
+                               Path      : C:\Program Files\Java\jre1.8.0_341\bin
+licensemanagershellext.exe     (default) : C:\Windows\System32\licensemanagershellext.exe
+mip.exe                        (default) : C:\Program Files\Common Files\Microsoft Shared\Ink\mip.exe
+mpc-hc64.exe                   (default) : C:\Program Files (x86)\K-Lite Codec Pack\MPC-HC64\mpc-hc64.exe
+                               Path      : C:\Program Files (x86)\K-Lite Codec Pack\MPC-HC64
+mplayer2.exe                   (default) : "C:\Program Files\Windows Media Player\wmplayer.exe"
+                               Path      : C:\Program Files\Windows Media Player
+MSACCESS.EXE                   (default) : C:\Program Files\Microsoft Office\Root\Office16\MSACCESS.EXE
+                               Path      : C:\Program Files\Microsoft Office\Root\Office16\
+                               UseURL    : 1
+msedge.exe                     (default) : C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe
+                               Path      : C:\Program Files (x86)\Microsoft\Edge\Application
+
+    Hive: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe
+
+Name                           Property
+----                           --------
+SupportedProtocols             http  :
+                               https :
+<SNIP>  
+```
+
+### 3 property
+```
+PS C:\htb> Get-ItemProperty -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+
+SecurityHealth        : C:\Windows\system32\SecurityHealthSystray.exe
+RtkAudUService        : "C:\Windows\System32\DriverStore\FileRepository\realtekservice.inf_amd64_85cff5320735903
+                        d\RtkAudUService64.exe" -background
+WavesSvc              : "C:\Windows\System32\DriverStore\FileRepository\wavesapo9de.inf_amd64_d350b8504310bbf5\W
+                        avesSvc64.exe" -Jack
+DisplayLinkTrayApp    : "C:\Program Files\DisplayLink Core Software\DisplayLinkTrayApp.exe" -basicMode
+LogiOptions           : C:\Program Files\Logitech\LogiOptions\LogiOptions.exe /noui
+Acrobat Assistant 8.0 : "C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrotray.exe"
+(default)             :
+Focusrite Notifier    : "C:\Program Files\Focusriteusb\Focusrite Notifier.exe"
+AdobeGCInvoker-1.0    : "C:\Program Files (x86)\Common Files\Adobe\AdobeGCClient\AGCInvokerUtility.exe"
+PSPath                : Microsoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Curren
+                        tVersion\Run
+PSParentPath          : Microsoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Curren
+                        tVersion
+PSChildName           : Run
+PSProvider            : Microsoft.PowerShell.Core\Registry
+```
+
+### Reg Query 
+
+`REG QUERY HKCU /F "password" /t REG_SZ /S /K`
+
+* **Reg query**: We are calling on Reg.exe and specifying that we want to query data.
+* **HKCU**: This portion is setting the path to search. In this instance, we are looking in all of HKey_Current_User.
+* **/f "password"**: /f sets the pattern we are searching for. In this instance, we are looking for "Password".
+* **/t REG_SZ**: /t is setting the value type to search. If we do not specify, reg query will search through every type.
+* **/s**: /s says to search through all subkeys and values recursively.
+* **/k**: /k narrows it down to only searching through Key names.pecifying 
+
+## Creating and Modifying Registry Keys and Values
+Here we can use the PowerShell cmdlets: `New-Item` `Set-Item`, `New-ItemProperty` and `Set-ItemProperty`. `reg.exe` can aslo be used. 
+
+In the following example we will create a test new test key in the registry hive `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce`
+
+RunOnce has the buildin effect that it will call the key-value once, at boot and then delete it. Automatic Cleaning up any mess we make. 
+
+A practical scenario for this would be to create a soft kind of persistence on a system ensuring that if the host is restarted our payload can be re-executed at boot. 
+
+Lets get started
+### New Regitry Key
+
+`New-Item -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce\ -Name TestKey`
+
+### Setting Item Property
+`New-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce\TestKey -Name  "access" -PropertyType String -Value "C:\Users\htb-student\Downloads\payload.exe"`
+
+As mentioned the same can be done with the a reg.exe cmd 
+`reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce\TestKey" /v access /t REG_SZ /d "C:\Users\htb-student\Downloads\payload.exe"  
+`
+
+If you made a mistake you can always clean up `Remove-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce\TestKey -Name "access"`
+
+# Windows Event Log
