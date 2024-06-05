@@ -1141,7 +1141,7 @@ All of this event are kept track of by the Windows OS using the **Event Logging*
 
 The Service used for Event logging is called "Windows Event Log", it manages events and event logs. But the "Windows Event Log" also has an API that allows application to manage and maintain their own seperate event log. 
 
-## Event Log Gatagories and Types
+## Event Log Catagories and Types
 |Log Category|	Log Description|
 | ------------- |------------|
 |System Log	|The system log contains events related to the Windows system and its components. A system-level event could be a service failing at startup.|
@@ -1171,3 +1171,17 @@ Each log can have one of five severity levels associated with it, denoted by a n
 |Warning	|3|	A potential problem that a sysadmin should dig into.|
 |Error	|2|	An issue related to the system or service that does not require immediate attention.|
 |Critical	|1|	This indicates a significant issue related to an application or a system that requires urgent attention by a sysadmin that, if not addressed, could lead to system or application instability.|
+
+## Elements of the Event Log
+* Log name
+* Event data/time
+* Task Category: event log type
+* Event ID: unique identifier
+* Source : event produced by xyz.exe
+* Level: see previous table
+* User
+* Computer (host)
+
+ [AD-list](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/appendix-l--events-to-monitor)
+
+ 
