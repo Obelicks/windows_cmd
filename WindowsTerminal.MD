@@ -1182,6 +1182,195 @@ Each log can have one of five severity levels associated with it, denoted by a n
 * User
 * Computer (host)
 
- [AD-list](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/appendix-l--events-to-monitor)
+[AD-list](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/appendix-l--events-to-monitor)
 
- 
+## Technical Details 
+The event log is handled by the system service **Eventlog**
+```
+ Get-Service -Name EventLog
+
+Status   Name               DisplayName
+------   ----               -----------
+Running  EventLog           Windows-hændelseslog
+```
+This service starts at system boot by default.
+
+By default the service stores Event Logs inside `C:\Windows\System32\winevt\logs` with the file extension .evtx.
+
+**Note** Many Windows services are dependent on the Event Log, disabling it will lead to system instalbility and might trigger several alerts!
+
+## Interact with the eventlog - wevtutil
+the cmd command wevtutil can be used to retrieve information about event logs.
+It can also do the following log operations
+* export 
+* archive
+* clear
+
+get help by typing `wevtutil /?`
+Enumerate log sources with:
+
+`wevtutil el`
+
+with **gl** we can pass a log name argument to view the configuration of the logs attributes.
+
+with **gli** we can pass a log name argument to view specific status information about the log file (Meta Data)
+
+Now consider the following query: `wevtutil qe Security /c:5 /rd:true /f:text`
+
+This prompts the system to return the 5 latest Security entries and return them as text.
+
+exporting an event log is done like so:
+`wevtutil epl System C:\system_export.evtx`
+
+## Interacting with the eventlog - PowerShell
+`Get-WinEvent` is the cmdlet that lets us interact with the eventlog from PowerShell
+
+we can use the flag `-ListLog *` to list all logs. Replacing the wildcard we can narrow the listing using RegEx's.
+
+We can use the `-MaxEvent <int>` to extract the n latest events of a specific log `-LogName <string>`
+`-Oldest` if we want the oldest events insteaf of newest (default).
+
+
+`Get-WinEvent -LogName 'Security' -MaxEvents 5 | Select-Object -ExpandProperty Message`
+
+With this command we want the newest 5 Security eventsobjects and from that we want to see the MEssage attribute of the object. 
+
+`Get-WinEvent -FilterHashTable @{LogName='Security';ID='4625 '}`
+the id 4625 is the security event of account failed to log on. Analysing a log with many simultations of this event type could indicate a brute force attack. 
+
+`Get-WinEvent -FilterHashTable @{LogName='System';Level='1'} | select-object -ExpandProperty Message`
+This allows us to filter for Level 1 system events recall from earlier that level 1 is a critical event which is ranked more severe than level 2 "Error".
+
+# Network Management 
+Windows Hosts network fundamentaly like nay other host. The TCP/IP, wireless protocol treat most devices the same. 
+
+Here are some standard protocols you can expect to find on a Windows Host
+|Protocol|	Description|
+| ----- | ----------- |
+|SMB	|SMB provides Windows hosts with the capability to share resources, files, and a standard way of authenticating between hosts to determine if access to resources is allowed. For other distros, SAMBA is the open-source option.|
+|Netbios|	NetBios itself isn't directly a service or protocol but a connection and conversation mechanism widely used in networks. It was the original transport mechanism for SMB, but that has since changed. Now it serves as an alternate identification mechanism when DNS fails. Can also be known as NBT-NS (NetBIOS name service).|
+|LDAP	|LDAP is an open-source cross-platform protocol used for authentication and authorization with various directory services. This is how many different devices in modern networks can communicate with large directory structure services such as Active Directory.|
+|LLMNR|	LLMNR provides a name resolution service based on DNS and works if DNS is not available or functioning. This protocol is a multicast protocol and, as such, works only on local links ( within a normal broadcast domain, not across layer three links).|
+|DNS|	DNS is a common naming standard used across the Internet and in most modern network types. DNS allows us to reference hosts by a unique name instead of their IP address. This is how we can reference a website by "WWW.google.com" instead of "8.8.8.8". Internally this is how we request resources and access from a network.|
+|HTTP/HTTPS |	HTTP/S HTTP and HTTPS are the insecure and secure way we request and utilize resources over the Internet. These protocols are used to access and utilize resources such as web servers, send and receive data from remote sources, and much more.|
+|Kerberos |	Kerberos is a network level authentication protocol. In modern times, we are most likely to see it when dealing with Active Directory authentication when clients request tickets for authorization to use domain resources.|
+|WinRM|	WinRM Is an implementation of the WS-Management protocol. It can be used to manage the hardware and software functionalities of hosts. It is mainly used in IT administration but can also be used for host enumeration and as a scripting engine.|
+|RDP	|RDP is a Windows implementation of a network UI services protocol that provides users with a Graphical interface to access hosts over a network connection. This allows for full UI use to include the passing of keyboard and mouse input to the remote host.|
+|SSH|	SSH is a secure protocol that can be used for secure host access, transfer of files, and general communication between network hosts. It provides a way to securely access hosts and services over insecure networks.|
+
+## Local machine
+`IPConfig /all` show configurations about out internetcard
+
+`arp -a` display our arp table with mac adresses and their IP
+
+`nslookup` provides dns lookup 
+
+`netstat -an` Netstat will display current network connections
+-an will print all connections and listening ports in numerical form
+
+These were all commands built for cmd.exe 
+
+## PowerShell Net Cmdlets
+|Cmdlet|	Description|
+| ---- | ----------- |
+|Get-NetIPInterface|	Retrieve all visible network adapter properties.|
+|Get-NetIPAddress|	Retrieves the IP configurations of each adapter. Similar to IPConfig.|
+|Get-NetNeighbor	|Retrieves the neighbor entries from the cache. Similar to arp -a.|
+|Get-Netroute|	Will print the current route table. Similar to IPRoute.|
+|Set-NetAdapter|	Set basic adapter properties at the Layer-2 level such as VLAN id, description, and MAC-Address.|
+|Set-NetIPInterface|	Modifies the settings of an interface to include DHCP status, MTU, and other metrics.|
+|New-NetIPAddress|	Creates and configures an IP address.|
+|Set-NetIPAddress|	Modifies the configuration of a network adapter.|
+|Disable-NetAdapter|	Used to disable network adapter interfaces.|
+|Enable-NetAdapter|	Used to turn network adapters back on and allow network connections.|
+|Restart-NetAdapter	|Used to restart an adapter. It can be useful to help push changes made to adapter settings.|
+|test-NetConnection	|Allows for diagnostic checks to be ran on a connection. It supports ping, tcp, route tracing, and more.|
+
+## Enabling Remote Access
+### SSH
+`Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*'`
+should provide both a server and client name:
+`Add-WindowsCapability -Online -Name OpenSSH.Client`
+
+`Add-WindowsCapability -Online -Name OpenSSH.Server`
+
+`Start-Service sshd`
+  
+`Set-Service -Name sshd -StartupType 'Automatic'`
+
+### WinRM
+port 5985 and 5986
+`winrm quickconfig`
+
+Once enabled we can test the remote access:
+
+`Test-WSMan -ComputerName "10.129.224.248"`
+
+This will only tells us if the port is open and the winrm service is running.
+
+Now lets test authentication access:
+`Test-WSMan -ComputerName "10.129.224.248" -Authentication Negotiate`
+
+Now lets se if we can logon
+`Enter-PSSession -ComputerName 10.129.224.248 -Credential htb-student -Authentication Negotiate`
+
+Since PowerShell is cross platform the cmdlets above can also be used to connect from a linux client.
+
+# Interacting with the Web
+`Invoke-WebRequest` is our go to cmdlet.
+
+can perform basic GET and POST
+
+The cmdlet can accessed through it aliases **wget** **iwr** and **curl**
+
+Lets inspect what we get from a webrequest:
+```
+PS C:\htb> Invoke-WebRequest -Uri "https://web.ics.purdue.edu/~gchopra/class/public/pages/webdesign/05_simple.html" -Method GET | Get-Member
+
+
+   TypeName: Microsoft.PowerShell.Commands.HtmlWebResponseObject
+
+----              ---------- ----------
+Dispose           Method     void Dispose(), void IDisposable.Dispose()
+Equals            Method     bool Equals(System.Object obj)
+GetHashCode       Method     int GetHashCode()
+GetType           Method     type GetType()
+ToString          Method     string ToString()
+AllElements       Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection AllElements...
+BaseResponse      Property   System.Net.WebResponse BaseResponse {get;set;}
+Content           Property   string Content {get;}
+Forms             Property   Microsoft.PowerShell.Commands.FormObjectCollection Forms {get;}
+Headers           Property   System.Collections.Generic.Dictionary[string,string] Headers {get;}
+Images            Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection Images {get;}
+InputFields       Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection InputFields...
+Links             Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection Links {get;}
+ParsedHtml        Property   mshtml.IHTMLDocument2 ParsedHtml {get;}
+RawContent        Property   string RawContent {get;set;}
+RawContentLength  Property   long RawContentLength {get;}
+RawContentStream  Property   System.IO.MemoryStream RawContentStream {get;}
+Scripts           Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection Scripts {get;}
+StatusCode        Property   int StatusCode {get;}
+StatusDescription Property   string StatusDescription {get;}
+```
+Depending on what we want to look for we can filter the returned object like this:
+
+`PS C:\htb> Invoke-WebRequest -Uri "https://web.ics.purdue.edu/~gchopra/class/public/pages/webdesign/05_simple.html" -Method GET | fl Images`
+
+instead of Images we could have asked for the RawContent to get the raw html page.
+
+## Download files 
+Using the parameter `-Outfile "Path_to_file.txt"`
+we can pipe the file served on the remote http server into a file. Very useful to qucikly get scripts from github or your own python -m http.server 8080 down on a host.
+
+### Alternative
+`(New-Object Net.WebClient).DownloadFile("https://github.com/BloodHoundAD/BloodHound/releases/download/4.2.0/BloodHound-win32-x64.zip", "Bloodhound.zip")`
+This utilize a .Net class that allows us to download a file 1st parameter and what its name when downloaded should be parameter 2.
+
+# PowerShell Scripting and Automation
+PowerShell Extensions
+|Extension	|Description|
+|-------|--------|
+| ps1|	The *.ps1 file extension represents executable PowerShell scripts.|
+|psm1|	The *.psm1 file extension represents a PowerShell module file. It defines what the module is and what is contained within it.|
+|psd1|	The *.psd1 is a PowerShell data file detailing the contents of a PowerShell module in a table of key/value pairs.|
+
